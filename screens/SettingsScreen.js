@@ -3,33 +3,47 @@ import {View, Text, StyleSheet, TouchableOpacity} from 'react-native'
 import firebase from 'firebase/app'
 import 'firebase/auth'
 import { TextInput } from 'react-native'
+import getUserData from '../getUserData'
+import editUserData from '../editUserData'
 
 export default class SettingsScreen extends React.Component {
     
     // const [displayName, setDisplayName] = useState("")
 
+
+
     state = {
-        displayName: "",
-        email: "",
-        paypalUsername: "",
-        textSize: "",
-        colorTheme: "",
+        Username: "",
+        Email: "",
+        Paypal: "",
+        TextSize: "",
+        ColorTheme: "",
 
         readOnly: true
     }
 
     componentDidMount() {
-        const {email, displayName} = firebase.default.auth().currentUser
+        const {Email, Username} = firebase.default.auth().currentUser
 
-        this.setState({email, displayName})
+        getUserData().then((userData) => {
+            // this.state.Paypal = userData.Paypal;
+            // this.state.TextSize = userData.TextSize;
+            // this.state.ColorTheme = userData.ColorTheme;
+            console.log(userData)
+            this.setState({Username : userData.Username})
+            this.setState({Email : userData.Email})
+            this.setState({Paypal : userData.Permissions})
+        });
+
+        this.setState({Email , Username})
     }
 
     currentView() {
         if (this.state.readOnly) {
             return <View style={styles.container}> 
-            <Text>Name: {this.state.displayName} </Text>
-            <Text>Email: {this.state.email} </Text>
-            <Text>paypalUsername: {this.state.paypalUsername} </Text>
+            <Text>Username: {this.state.Username} </Text>
+            <Text>Email: {this.state.Email} </Text>
+            <Text>Paypal: {this.state.Paypal} </Text>
 
             <TouchableOpacity onPress={this.changeSettingsPressed}>
                 <Text>Change Settings</Text>
@@ -41,28 +55,30 @@ export default class SettingsScreen extends React.Component {
             <div>
                 <Text>Name: </Text>
                 <TextInput 
-                    placeholder={this.state.displayName}
-                    value={this.state.displayName}
-                    onChangeText={displayName => this.setState({displayName: displayName})}
+                    placeholder={this.state.Username}
+                    value={this.state.Username}
+                    onChangeText={Username => this.setState({Username: Username})}
                 />
             </div>
 
             <div>
                 <Text>Email: </Text>
                 <TextInput 
-                    placeholder={this.state.email}
-                    value={this.state.email}
-                    onChangeText={email => this.setState({email: email})}
+                    placeholder={this.state.Email}
+                    value={this.state.Email}
+                    onChangeText={Email => this.setState({Email: Email})}
                 />
             </div>
 
-            <Text>paypalUsername: {this.state.paypalUsername} </Text>
+            <Text>Paypal: {this.state.Paypal} </Text>
 
             <TouchableOpacity onPress={this.cancelPressed}>
                 <Text>Cancel</Text>
             </TouchableOpacity>
 
+
             <TouchableOpacity onPress={this.savePressed}>
+
                 <Text>Save Settings</Text>
             </TouchableOpacity>
             </View>
@@ -85,6 +101,7 @@ export default class SettingsScreen extends React.Component {
             displayName: this.state.displayName,
             email: this.state.email
         })
+        editUserData(this.state)
         this.setState({readOnly: true})
     }
 
